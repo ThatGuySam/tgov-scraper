@@ -4,6 +4,7 @@
 data/audio/
 data/video/
 data/transcripts/
+data/temp_subtitle_files/
 models/
 notebooks/.ipynb_checkpoints/
 
