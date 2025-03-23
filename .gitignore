@@ -1,10 +1,11 @@
 # Environment variables
 .env
 
-data/audio/
-data/video/
-data/transcripts/
+data/
 models/
+# Include specific directories
+!src/models/
+
 notebooks/.ipynb_checkpoints/
 
 # Python
