@@ -60,7 +60,7 @@ def test_create_srt_track(fixture_transcript_path):
     """Test creating an SRT track from a transcript."""
     srt_track = create_track(
         fixture_transcript_path,
-        track_format=TrackFormat.SRT,
+        format="srt",
         max_duration=5.0,
         max_words=14,
         include_speaker_prefix=True,
@@ -77,17 +77,20 @@ def test_create_srt_track(fixture_transcript_path):
     # Check that speaker prefixes were added
     assert any("[Speaker" in entry.text for entry in srt_track.entries)
 
-    # Test SRT content generation
-    srt_content = srt_track.to_srt_content()
+    # Test content generation using unified method
+    srt_content = srt_track.content()
     assert srt_content.startswith("1\n")
     assert "-->" in srt_content
+
+    # Verify old method still works for backward compatibility
+    assert srt_track.to_srt_content() == srt_content
 
 
 def test_create_vtt_track(fixture_transcript_path):
     """Test creating a VTT track from a transcript."""
     vtt_track = create_track(
         fixture_transcript_path,
-        track_format=TrackFormat.VTT,
+        format="vtt",
         max_duration=4.0,
         max_words=12,
     )
@@ -100,17 +103,20 @@ def test_create_vtt_track(fixture_transcript_path):
     assert len(vtt_track.entries) > 0
     assert all(isinstance(entry, VttEntry) for entry in vtt_track.entries)
 
-    # Test VTT content generation
-    vtt_content = vtt_track.to_vtt_content()
+    # Test content generation using unified method
+    vtt_content = vtt_track.content()
     assert vtt_content.startswith("WEBVTT")
     assert "-->" in vtt_content
+
+    # Verify old method still works for backward compatibility
+    assert vtt_track.to_vtt_content() == vtt_content
 
 
 def test_create_ass_track(fixture_transcript_path):
     """Test creating an ASS track from a transcript."""
     ass_track = create_track(
         fixture_transcript_path,
-        track_format=TrackFormat.ASS,
+        format="ass",
         font_size=28,
         bg_opacity=0.3,
     )
@@ -124,10 +130,13 @@ def test_create_ass_track(fixture_transcript_path):
     assert len(ass_track.entries) > 0
     assert all(isinstance(entry, AssEntry) for entry in ass_track.entries)
 
-    # Test ASS content generation
-    ass_content = ass_track.to_ass_content()
+    # Test content generation using unified method
+    ass_content = ass_track.content()
     assert "[Script Info]" in ass_content
     assert "Dialogue:" in ass_content
+
+    # Verify old method still works for backward compatibility
+    assert ass_track.to_ass_content() == ass_content
 
 
 def test_load_transcript(fixture_transcript_path):

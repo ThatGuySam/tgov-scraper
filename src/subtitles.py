@@ -172,7 +172,7 @@ def load_transcript(transcript_data: Union[Dict[str, Any], str, Path]) -> Transc
     else:
         data = transcript_data
 
-    return Transcript.parse_obj(data)
+    return Transcript.model_validate(data)
 
 
 def chunk_transcript(
@@ -435,7 +435,7 @@ def add_speaker_prefixes(
 
 def create_track(
     transcript_data: Union[Dict[str, Any], str, Path],
-    track_format: Union[str, TrackFormat] = TrackFormat.SRT,
+    format: str = "srt",
     max_duration: float = 5.0,
     max_length: int = 80,
     max_words: int = 14,
@@ -452,7 +452,7 @@ def create_track(
 
     Args:
         transcript_data: Either a transcript data dictionary or path to JSON file
-        track_format: Format of the subtitle track ("srt", "ass", or "vtt")
+        format: Format of the subtitle track ("srt", "ass", or "vtt")
         max_duration: Maximum duration in seconds for a subtitle
         max_length: Maximum character length for a subtitle line
         max_words: Maximum words per subtitle
@@ -467,9 +467,8 @@ def create_track(
     Returns:
         SubtitleTrack object containing metadata and subtitle entries
     """
-    # Normalize track format
-    if isinstance(track_format, str):
-        track_format = TrackFormat(track_format.lower())
+    # Normalize track format to TrackFormat enum internally
+    track_format = TrackFormat(format.lower())
 
     # Load and validate transcript
     transcript = load_transcript(transcript_data)
