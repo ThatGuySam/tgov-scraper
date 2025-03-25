@@ -31,7 +31,18 @@ aiofiles = "^24.1.0"
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.1.1"
 ipykernel = "^6.29.5"
+pytest = "^8.0.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]

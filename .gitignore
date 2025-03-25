@@ -1,10 +1,7 @@
 # Environment variables
 .env
 
-data/audio/
-data/video/
-data/transcripts/
-data/temp_subtitle_files/
+data/
 models/
 notebooks/.ipynb_checkpoints/
 
