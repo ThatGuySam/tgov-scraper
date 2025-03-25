@@ -3,6 +3,9 @@
 
 data/
 models/
+# Include specific directories
+!src/models/
+
 notebooks/.ipynb_checkpoints/
 
 # Python
