@@ -6,12 +6,11 @@ This module provides functions to scrape meeting data from Government Access
 Television websites.
 """
 
-import asyncio
-import json
-from typing import Dict, List, Optional, Any
+from typing import Dict, List
 from urllib.parse import urljoin
 
 import aiohttp
+import pandas as pd
 from selectolax.parser import HTMLParser
 
 from .models.meeting import Meeting
@@ -140,3 +139,28 @@ async def get_meetings() -> List[Meeting]:
         # Convert dictionaries to Meeting objects
         meetings = [Meeting(**meeting_dict) for meeting_dict in meeting_dicts]
         return meetings
+
+
+def duration_to_minutes(duration):
+    if not duration or pd.isna(duration):
+        return None
+
+    # Parse duration in format "00h 39m"
+    try:
+        hours = 0
+        minutes = 0
+
+        if 'h' in duration:
+            hours_part = duration.split('h')[0].strip()
+            hours = int(hours_part)
+
+        if 'm' in duration:
+            if 'h' in duration:
+                minutes_part = duration.split('h')[1].split('m')[0].strip()
+            else:
+                minutes_part = duration.split('m')[0].strip()
+            minutes = int(minutes_part)
+
+        return hours * 60 + minutes
+    except:
+        return None

@@ -1,5 +1,6 @@
 # Environment variables
 .env
+.envrc
 
 data/
 models/
@@ -16,6 +17,7 @@ __pycache__/
 *.py[cod]
 *.so
 .Python
+.python-version
 build/
 develop-eggs/
 dist/
