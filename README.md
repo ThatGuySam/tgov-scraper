@@ -13,6 +13,14 @@ poetry install --no-root
 # Activate the virtual environment
 poetry self add poetry-plugin-shell
 poetry shell
+
+# Set up pre-commit hooks
+poetry run pre-commit install
+
+# Verify pre-commit hooks are working
+poetry run pre-commit run --all-files
+
+# See notebook_precommit.md for more details on how notebook outputs are automatically stripped
 ```
 
 ## Running
@@ -57,6 +65,8 @@ pytest -v
   - `models/`: Pydantic models for data representation
 - `tasks/`: prefect tasks
 - `tests/`: Test files
+- `notebooks/`: Jupyter notebooks for analysis and exploration
+- `data/`: output from notebooks
 
 
 ## Running the transcription scripts

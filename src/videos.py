@@ -4,19 +4,14 @@ Utility functions for working with video streams from Granicus player pages.
 """
 
 import asyncio
-import re
 import tempfile
 import os
-import io
-from typing import Optional, Tuple, BinaryIO
-from urllib.request import urlopen
+from typing import Optional
 import time
 import json
 import aiohttp
-from selectolax.parser import HTMLParser
 import m3u8
 import requests
-from pydub import AudioSegment
 from pathlib import Path
 import whisperx
 from .huggingface import get_whisper, get_whisperx
