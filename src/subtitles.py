@@ -10,7 +10,8 @@ import json
 import hashlib
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Union, Any
+from datetime import datetime, timedelta
 
 # Import models from the models module
 from src.models.subtitles import (
@@ -21,8 +22,6 @@ from src.models.subtitles import (
     AssEntry,
     TrackMetadata,
     SubtitleTrack,
-    Word,
-    TranscriptSegment,
     Transcript,
     AssStyle,
 )
@@ -38,12 +37,17 @@ def format_time_for_srt(seconds: float) -> str:
     Returns:
         String in SRT time format
     """
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    seconds_part = seconds % 60
-    milliseconds = int((seconds_part - int(seconds_part)) * 1000)
 
-    return f"{hours:02d}:{minutes:02d}:{int(seconds_part):02d},{milliseconds:03d}"
+    # Create a datetime object from seconds
+    time_obj = datetime(1, 1, 1) + timedelta(seconds=seconds)
+
+    # Format using strftime for hours, minutes, seconds
+    time_str = time_obj.strftime("%H:%M:%S")
+
+    # Add milliseconds
+    milliseconds = int((seconds % 1) * 1000)
+
+    return f"{time_str},{milliseconds:03d}"
 
 
 def format_time_for_vtt(seconds: float) -> str:

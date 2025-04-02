@@ -14,17 +14,35 @@ poetry install --no-root
 poetry self add poetry-plugin-shell
 poetry shell
 
-# Install Jupyter kernel for this environment (needed for Jupyter notebooks)
-python -m ipykernel install --user --name=tgov-scraper --display-name="TGOV Scraper"
+# Set up pre-commit hooks
+poetry run pre-commit install
+
+# Verify pre-commit hooks are working
+poetry run pre-commit run --all-files
+
+# See notebook_precommit.md for more details on how notebook outputs are automatically stripped
 ```
 
 ## Running
+### Jupyter notebooks
 
 ```bash
+# Install Jupyter kernel for this environment (needed for Jupyter notebooks)
+python -m ipykernel install --user --name=tgov-scraper --display-name="TGOV Scraper"
+
 jupyter notebook
 ```
 
-## Running Tests
+### Prefect flows
+See https://docs.prefect.io/get-started
+
+```bash
+prefect server start                      # to start the persistent server
+
+python -m flows.translate_meetings        # to run a specific flow
+```
+
+### Tests
 
 ```bash
 # Run all tests
@@ -39,12 +57,16 @@ pytest -v
 
 ## Project Structure
 
+- `data/`: local data artifacts
+- `flows/`: prefect flows
+- `notebooks/`: Jupyter notebooks for analysis and exploration
+- `scripts/`: one off scripts for downloading, conversions, etc
 - `src/`: Source code for the scraper
   - `models/`: Pydantic models for data representation
-- 'scripts`: one off scripts for downloading, conversions, etc
+- `tasks/`: prefect tasks
 - `tests/`: Test files
 - `notebooks/`: Jupyter notebooks for analysis and exploration
-- `data/`: output from notebooks 
+- `data/`: output from notebooks
 
 
 ## Running the transcription scripts

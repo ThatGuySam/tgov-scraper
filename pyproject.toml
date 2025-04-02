@@ -2,11 +2,11 @@
 name = "tgov scraper"
 version = "0.1.0"
 description = "A set of scripts and notebooks for exploring Tulsa Government Access Television"
-authors = ["jdungan <johnadungan@gmail.com>"]
+authors = ["jdungan <johnadungan@gmail.com>", "groovecoder <luke@groovecoder.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.11.*"
+python = ">=3.11,<3.13"
 selectolax = "^0.3.28"
 aiohttp = "^3.11.13"
 pytest-asyncio = "^0.25.3"
@@ -25,14 +25,17 @@ jupyter-nbextensions-configurator = "^0.6.4"
 python-dotenv = "^1.0.1"
 aiofiles = "^24.1.0"
 faster-whisper = "^1.1.1"
+prefect = "^3.3.0"
+boto3 = "^1.37.24"
 
 
 [tool.poetry.group.dev.dependencies]
-jupyter = "^1.1.1"
+ipdb = "^0.13.13"
 ipykernel = "^6.29.5"
-pytest = "^8.0.0"
-pre-commit = "^4.2.0"
+jupyter = "^1.1.1"
 nbstripout = "^0.8.1"
+pre-commit = "^4.2.0"
+pytest = "^8.0.0"
 
 [build-system]
 requires = ["poetry-core"]
