@@ -2,11 +2,11 @@
 name = "tgov scraper"
 version = "0.1.0"
 description = "A set of scripts and notebooks for exploring Tulsa Government Access Television"
-authors = ["jdungan <johnadungan@gmail.com>"]
+authors = ["jdungan <johnadungan@gmail.com>", "groovecoder <luke@groovecoder.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.11.*"
+python = ">=3.11,<3.13"
 selectolax = "^0.3.28"
 aiohttp = "^3.11.13"
 pytest-asyncio = "^0.25.3"
