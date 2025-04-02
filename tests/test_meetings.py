@@ -14,7 +14,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.meetings import fetch_page, parse_meetings, get_meetings
+from src.meetings import fetch_page, parse_meetings, get_tgov_meetings
 from src.models.meeting import Meeting
 
 
@@ -48,20 +48,43 @@ def sample_html():
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>City Council</td>
-                    <td>Jan 1, 2023</td>
-                    <td>1:30</td>
-                    <td><a href="agenda.php?id=123">Agenda</a></td>
-                    <td><a href="video.php?id=456">Video</a></td>
-                </tr>
-                <tr>
-                    <td>Planning Commission</td>
-                    <td>Jan 2, 2023</td>
-                    <td>2:15</td>
-                    <td><a href="agenda.php?id=789">Agenda</a></td>
-                    <td><a href="video.php?id=012">Video</a></td>
-                </tr>
+                <tr class="listingRow">
+                                                                                  <td class="listItem" headers="Name" id="Regular-Council-Meeting" scope="row">
+                                                                                        Regular Council Meeting
+                                          </td>
+                                                                                                                          <td class="listItem" headers="Date Regular-Council-Meeting">
+                                                                                          April&nbsp; 2,&nbsp;2025
+                                                                                                                                      -
+                                                                                               5:03&nbsp;PM
+                                                                                                                                    </td>
+                                                                                                            <td class="listItem" headers="Duration Regular-Council-Meeting">01h&nbsp;29m</td>
+                                                                                                                          <td class="listItem">
+                                                                                          <a href="//tulsa-ok.granicus.com/AgendaViewer.php?view_id=4&amp;clip_id=6515" target="_blank">Agenda</a>
+                                                                                      </td>
+                                                                                                                                                                  <td class="listItem" headers="VideoLink Regular-Council-Meeting">
+                                                                                          <a href="javascript:void(0);" onclick="window.open('//tulsa-ok.granicus.com/MediaPlayer.php?view_id=4&amp;clip_id=6515','player','toolbar=no,directories=no,status=yes,scrollbars=yes,resizable=yes,menubar=no')">
+                                                                                                  Video
+                                                                                              </a>
+                                                                                      </td>
+                                                                                                                                                                                                      </tr>
+                                                                                                                                                                                                      <tr class="listingRow">
+                                                                                  <td class="listItem" headers="Name" id="Animal-Welfare-Commission" scope="row">
+                                                                                        Animal Welfare Commission
+                                          </td>
+                                                                                                                          <td class="listItem" headers="Date Animal-Welfare-Commission">
+                                                                                          March&nbsp;10,&nbsp;2025
+                                                                                                                                      -
+                                                                                               6:00&nbsp;PM
+                                                                                                                                    </td>
+                                                                                                            <td class="listItem" headers="Duration Animal-Welfare-Commission">00h&nbsp;38m</td>
+                                                                                                                          <td class="listItem">
+                                                                                      </td>
+                                                                                                                                                                  <td class="listItem" headers="VideoLink Animal-Welfare-Commission">
+                                                                                          <a href="javascript:void(0);" onclick="window.open('//tulsa-ok.granicus.com/MediaPlayer.php?view_id=4&amp;clip_id=6474','player','toolbar=no,directories=no,status=yes,scrollbars=yes,resizable=yes,menubar=no')">
+                                                                                                  Video
+                                                                                              </a>
+                                                                                      </td>
+                                                                                                                                                                                                      </tr>
             </tbody>
         </table>
     </body>
@@ -76,17 +99,17 @@ async def test_parse_meetings(sample_html):
 
     assert len(meetings) == 2
 
-    assert meetings[0]["meeting"] == "City Council"
-    assert meetings[0]["date"] == "Jan 1, 2023"
-    assert meetings[0]["duration"] == "1:30"
-    assert "agenda.php?id=123" in meetings[0]["agenda"]
-    assert "video.php?id=456" in meetings[0]["video"]
+    assert meetings[0]["meeting"] == "Regular Council Meeting"
+    assert meetings[0]["date"] == "April 2, 2025"
+    assert meetings[0]["duration"] == "1:29"
+    assert "AgendaViewer.php?view_id=4&clip_id=6515" in meetings[0]["agenda"]
+    assert "MediaPlayer.php?view_id=4&clip_id=6515" in meetings[0]["video"]
 
-    assert meetings[1]["meeting"] == "Planning Commission"
-    assert meetings[1]["date"] == "Jan 2, 2023"
-    assert meetings[1]["duration"] == "2:15"
-    assert "agenda.php?id=789" in meetings[1]["agenda"]
-    assert "video.php?id=012" in meetings[1]["video"]
+    assert meetings[1]["meeting"] == "Animal Welfare Commission"
+    assert meetings[1]["date"] == "March 10, 2025"
+    assert meetings[1]["duration"] == "0:38"
+    assert meetings[1]["agenda"] is None
+    assert "MediaPlayer.php?view_id=4&clip_id=6474" in meetings[1]["video"]
 
 
 @pytest.mark.asyncio
@@ -129,10 +152,10 @@ async def test_fetch_page(real_html):
 
 
 @pytest.mark.asyncio
-async def test_get_meetings(real_html):
-    """Test that get_meetings returns a list of Meeting objects"""
+async def test_get_tgov_meetings(real_html):
+    """Test that get_tgov_meetings returns a list of Meeting objects"""
     with patch("src.meetings.fetch_page", return_value=real_html):
-        meetings = await get_meetings()
+        meetings = await get_tgov_meetings()
 
         # Basic validation
         assert isinstance(meetings, list)
@@ -144,28 +167,6 @@ async def test_get_meetings(real_html):
             assert hasattr(meeting, "meeting")
             assert hasattr(meeting, "date")
             assert hasattr(meeting, "duration")
+            assert hasattr(meeting, "clip_id")
             assert hasattr(meeting, "agenda")  # May be None
             assert hasattr(meeting, "video")  # May be None
-
-
-@pytest.mark.asyncio
-async def test_integration():
-    """
-    Integration test that actually fetches data from the website.
-    This test is marked as optional and can be skipped with -m "not integration"
-    """
-    pytest.skip("Skipping integration test by default")
-
-    meetings = await get_meetings()
-
-    # Basic validation
-    assert isinstance(meetings, list)
-    assert len(meetings) > 0
-
-    # Check that each meeting is a Meeting object
-    for meeting in meetings:
-        assert isinstance(meeting, Meeting)
-        assert meeting.meeting
-        assert meeting.date
-        assert meeting.duration
-        # agenda and video may be None
