@@ -111,8 +111,11 @@ async def parse_meetings(html: str) -> List[Dict[str, str]]:
 
                 if onclick_match:
                     meeting_data["video"] = f"https:{onclick_match.group(1)}"
-                    meeting_data["clip_id"] = re.search(clip_id_exp, onclick).group(1)
-
+                    clip_id_match = re.search(clip_id_exp, onclick)
+                    if clip_id_match:
+                        meeting_data["clip_id"] = clip_id_match.group(1)
+                    else:
+                        meeting_data["clip_id"] = None
                 if not meeting_data["video"]:
                     href = video_link.attributes.get("href", "")
                     if href.startswith("javascript:"):
