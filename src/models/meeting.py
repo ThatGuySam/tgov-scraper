@@ -2,7 +2,6 @@
 Pydantic models for meeting data
 """
 
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, HttpUrl
@@ -18,6 +17,7 @@ class Meeting(BaseModel):
     duration: str = Field(description="Duration of the meeting")
     agenda: Optional[HttpUrl] = Field(None, description="URL to the meeting agenda")
     video: Optional[HttpUrl] = Field(None, description="URL to the meeting video")
+    clip_id: Optional[str] = Field(None, description="Granicus clip ID")
 
     def __str__(self) -> str:
         """String representation of the meeting"""
