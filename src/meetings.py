@@ -92,7 +92,7 @@ async def parse_meetings(html: str) -> List[Dict[str, str]]:
             }
 
             # Extract agenda link if available
-            agenda_cells = row.css('td.listItem:has(a[href*="AgendaViewer.php"]')
+            agenda_cells = row.css('td.listItem:has(a[href*="AgendaViewer.php"])')
             agenda_link = agenda_cells[0].css_first("a") if agenda_cells else None
             if agenda_link is not None:
                 meeting_data["agenda"] = urljoin(
