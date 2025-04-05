@@ -33,13 +33,51 @@ python -m ipykernel install --user --name=tgov-scraper --display-name="TGOV Scra
 jupyter notebook
 ```
 
-### Prefect flows
+### Prefect workflows
+We use prefect to organize code into workflows of data tasks.
+
 See https://docs.prefect.io/get-started
 
 ```bash
 prefect server start                      # to start the persistent server
 
 python -m flows.translate_meetings        # to run a specific flow
+```
+
+#### Data "registry" for workflows
+The prefect workflows use a "registry" to track meetings and urls to their data artifacts.
+E.g., `get_new_meetings` task adds each meeting to the registry with a `video_url`, `transcribe_videos` transcribes the video and adds `transcription_url`, etc.
+
+```mermaid
+gitGraph
+    branch registry
+    checkout registry
+    commit id: " "
+
+    branch get_new_meetings
+    checkout get_new_meetings
+    commit id: "get_new_meetings()"
+    checkout registry
+    merge get_new_meetings id: "video_url"
+
+    branch transcribe_videos
+    checkout transcribe_videos
+    commit id: "transcribe_videos()"
+    checkout registry
+    merge transcribe_videos id: "transcription_url"
+
+    branch create_subtitled_video_pages
+    checkout create_subtitled_video_pages
+    commit id: "create_subtitled_video_pages()"
+    checkout registry
+    merge create_subtitled_video_pages id: "subtitled_video_url"
+
+    branch translate_transcriptions
+    checkout translate_transcriptions
+    commit id: "translate_transcriptions(es)"
+    commit id: "translate_transcriptions(mya)"
+    checkout registry
+    merge translate_transcriptions id: "translated_transcription_urls"
 ```
 
 ### Tests

@@ -15,14 +15,13 @@ import pandas as pd
 from selectolax.parser import HTMLParser
 
 from src.aws import is_aws_configured
-from src.models.utils import from_jsonl, to_jsonl
+from src.local_store import read_meetings, write_meetings
 
 from .models.meeting import Meeting
 
 BASE_URL = "https://tulsa-ok.granicus.com/ViewPublisher.php?view_id=4"
 TGOV_BUCKET_NAME = "tgov-meetings"
 MEETINGS_REGISTRY_PATH = "data/meetings.jsonl"
-
 
 async def fetch_page(url: str, session: aiohttp.ClientSession) -> str:
     """
@@ -40,10 +39,8 @@ async def fetch_page(url: str, session: aiohttp.ClientSession) -> str:
             raise Exception(f"Failed to fetch {url}, status code: {response.status}")
         return await response.text()
 
-
 def clean_date(date: str) -> str:
     return re.sub(r"\s+", " ", date).strip()
-
 
 async def parse_meetings(html: str) -> List[Dict[str, str]]:
     """
@@ -67,7 +64,6 @@ async def parse_meetings(html: str) -> List[Dict[str, str]]:
     # Process each table
     for table in tables:
         for row in table.css("tr.listingRow"):
-            cells = row.css("td")
             name_cells = row.css('td.listItem[headers^="Name"]')
             meeting_name = name_cells[0].text().strip() if name_cells else "Unknown"
 
@@ -75,12 +71,10 @@ async def parse_meetings(html: str) -> List[Dict[str, str]]:
             raw_date = clean_date(date_cells[0].text().strip()) if date_cells else "Unknown"
             meeting_date = raw_date.split("-")[0].strip() if "-" in raw_date else raw_date
 
-
             duration_cells = row.css('td.listItem[headers^="Duration"]')
             duration_str = duration_cells[0].text().strip() if duration_cells else "Unknown"
             minutes = duration_to_minutes(duration_str)
             meeting_duration = f"{minutes // 60}:{minutes % 60:02d}" if minutes is not None else "Unknown"
-
 
             meeting_data = {
                 "meeting": meeting_name,
@@ -131,7 +125,6 @@ async def parse_meetings(html: str) -> List[Dict[str, str]]:
 
     return meetings
 
-
 async def get_tgov_meetings() -> Sequence[Meeting]:
     """
     Fetch and parse meeting data from the Government Access Television website.
@@ -146,7 +139,6 @@ async def get_tgov_meetings() -> Sequence[Meeting]:
         # Convert dictionaries to Meeting objects
         meetings = [Meeting(**meeting_dict) for meeting_dict in meeting_dicts]
         return meetings
-
 
 def duration_to_minutes(duration):
     if not duration or pd.isna(duration):
@@ -172,43 +164,25 @@ def duration_to_minutes(duration):
     except:
         return None
 
-
 def get_registry_meetings() -> Sequence[Meeting]:
     if is_aws_configured():
-        print(f'Getting registry from AWS S3 bucket: {TGOV_BUCKET_NAME}, path: {MEETINGS_REGISTRY_PATH}')
-        import boto3
-        from botocore.exceptions import ClientError
-        s3 = boto3.client('s3')
-        try:
-            registry_response = s3.get_object(Bucket=TGOV_BUCKET_NAME, Key=MEETINGS_REGISTRY_PATH)
-            registry_body = registry_response['Body'].read().decode('utf-8')
-            return from_jsonl(registry_body, Meeting)
-        except ClientError as e:
-            if e.response['Error']['Code'] == 'NoSuchKey':
-                print('No registry file found on S3. Returning empty list.')
-
-    return []
-
+        print(f'Getting registry from DynamoDB.')
+        return list(Meeting.scan())
+    else:
+        print(f'Getting registry from local store')
+        return read_meetings()
 
 def write_registry_meetings(meetings: Sequence[Meeting]) -> Sequence[Meeting]:
-    jsonl_str = to_jsonl(meetings)
-
     if is_aws_configured():
-        print(f'Writing registry to AWS S3 bucket: {TGOV_BUCKET_NAME}, path: {MEETINGS_REGISTRY_PATH}')
-        import boto3
-        from botocore.exceptions import ClientError
-        s3 = boto3.client('s3')
-
-        try:
-            s3.put_object(
-                    Bucket=TGOV_BUCKET_NAME,
-                    Key=MEETINGS_REGISTRY_PATH,
-                    Body=jsonl_str,
-                    ContentType='application/x-ndjson'
-                    )
-            print(f'Wrote {len(meetings)} meetings to S3.')
-        except ClientError as e:
-            print(f"Failed to write to S3: {e}")
-            raise
+        print(f'Writing registry to DynamoDB.')
+        with Meeting.batch_writer():
+            for meeting in meetings:
+                if meeting.clip_id:
+                    meeting.save()
+                else:
+                    print(f'Skipping meeting with missing clip_id: {meeting}')
+    else:
+        print(f'Writing registry to local store')
+        write_meetings(meetings)
 
     return meetings

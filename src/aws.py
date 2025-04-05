@@ -3,8 +3,9 @@ import os
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
+
 def is_aws_configured():
-    required_vars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY']
+    required_vars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_DEFAULT_REGION']
     return all(var in os.environ for var in required_vars)
 
 
@@ -37,4 +38,3 @@ def upload_to_s3(file_path, bucket_name, s3_path):
     except (NoCredentialsError, PartialCredentialsError) as e:
         print(f"Failed to upload to S3: {str(e)}")
         return False
-

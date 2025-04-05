@@ -10,7 +10,6 @@ async def get_new_meetings():
     # TODO: accept max_limit parameter
     tgov_meetings: Sequence[Meeting] = await get_tgov_meetings()
     print(f"Got {len(tgov_meetings)} tgov meetings.")
-    tgov_clip_ids = [tm.clip_id for tm in tgov_meetings]
     # print(f"tgov_clip_ids: {tgov_clip_ids}")
 
     registry_meetings: Sequence[Meeting] = get_registry_meetings()
