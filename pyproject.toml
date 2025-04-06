@@ -27,6 +27,7 @@ aiofiles = "^24.1.0"
 faster-whisper = "^1.1.1"
 prefect = "^3.3.0"
 boto3 = "^1.37.24"
+dyntastic = "^0.18.0"
 
 
 [tool.poetry.group.dev.dependencies]
