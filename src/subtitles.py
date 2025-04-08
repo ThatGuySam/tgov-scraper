@@ -12,6 +12,8 @@ import re
 from pathlib import Path
 from typing import Dict, List, Optional, Union, Any
 from datetime import datetime, timedelta
+import aiohttp
+from pydantic import HttpUrl
 
 # Import models from the models module
 from src.models.subtitles import (
@@ -159,7 +161,16 @@ def get_color_code_for_ass(color_name: str) -> str:
     return color_map.get(color_name, "FFFFFF")  # Default to white if color not found
 
 
-def load_transcript(transcript_data: Union[Dict[str, Any], str, Path]) -> Transcript:
+async def request_transcript(transcript_url: HttpUrl) -> Transcript:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(transcript_url) as response:
+            transcript_data = await response.json()
+    return Transcript.model_validate(transcript_data)
+
+
+async def load_transcript(
+    transcript_data: Union[Dict[str, Any], str, Path],
+) -> Transcript:
     """
     Load a transcript file or dictionary and return a validated Transcript model.
 
