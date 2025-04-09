@@ -161,35 +161,6 @@ def get_color_code_for_ass(color_name: str) -> str:
     return color_map.get(color_name, "FFFFFF")  # Default to white if color not found
 
 
-async def request_transcript(transcript_url: HttpUrl) -> Transcript:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(transcript_url) as response:
-            transcript_data = await response.json()
-    return Transcript.model_validate(transcript_data)
-
-
-async def load_transcript(
-    transcript_data: Union[Dict[str, Any], str, Path],
-) -> Transcript:
-    """
-    Load a transcript file or dictionary and return a validated Transcript model.
-
-    Args:
-        transcript_data: Either a transcript data dictionary or path to JSON file
-
-    Returns:
-        Transcript object
-    """
-    # Load transcript if a path was provided
-    if isinstance(transcript_data, (str, Path)):
-        with open(transcript_data, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    else:
-        data = transcript_data
-
-    return Transcript.model_validate(data)
-
-
 def chunk_transcript(
     transcript: Transcript,
     max_duration: float = 5.0,
@@ -448,8 +419,8 @@ def add_speaker_prefixes(
     return chunks
 
 
-def create_track(
-    transcript_data: Union[Dict[str, Any], str, Path],
+def create_subtitles(
+    transcript: Transcript,
     format: str = "srt",
     max_duration: float = 5.0,
     max_length: int = 80,
@@ -484,14 +455,6 @@ def create_track(
     """
     # Normalize track format to TrackFormat enum internally
     track_format = TrackFormat(format.lower())
-
-    # Load and validate transcript
-    transcript = load_transcript(transcript_data)
-
-    # Generate source file information if transcript_data is a path
-    source_file = None
-    if isinstance(transcript_data, (str, Path)):
-        source_file = str(transcript_data)
 
     # Chunk the transcript
     chunks = chunk_transcript(
@@ -545,7 +508,6 @@ def create_track(
         speakers=speakers,
         word_count=word_count,
         duration=track_duration,
-        source_file=source_file,
         style=AssStyle(
             font_name=font_name,
             font_size=font_size,
