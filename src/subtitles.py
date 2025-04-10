@@ -189,7 +189,6 @@ def chunk_transcript(
     """
     chunks = []
     current_chunk = {"text": "", "start": 0, "end": 0, "speaker": "", "words": []}
-
     for segment in transcript.segments:
         # Skip very short segments
         if segment.end - segment.start < 0.1:
@@ -455,7 +454,6 @@ def create_subtitles(
     """
     # Normalize track format to TrackFormat enum internally
     track_format = TrackFormat(format.lower())
-
     # Chunk the transcript
     chunks = chunk_transcript(
         transcript,

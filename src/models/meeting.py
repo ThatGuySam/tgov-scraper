@@ -7,7 +7,7 @@ from typing import Optional
 from dyntastic import Dyntastic
 from pydantic import BaseModel, Field, HttpUrl
 from datetime import datetime
-from typing import Sequence
+from typing import Sequence, List
 
 
 def clean_filename(meeting_name: str) -> str:
@@ -24,10 +24,10 @@ class Meeting(Dyntastic):
     duration: str = Field(description="Duration of the meeting")
     agenda: Optional[HttpUrl] = Field(None, description="URL to the meeting agenda")
     video: Optional[HttpUrl] = Field(None, description="URL to the meeting video")
-    transcript: Optional[HttpUrl] = Field(
-        None, description="URL to the meeting transcript"
+    transcripts: Optional[List[HttpUrl]] = Field(
+        None, description="URLs to the meeting transcripts"
     )
-    subtitles: Optional[HttpUrl] = Field(
+    subtitles: Optional[List[HttpUrl]] = Field(
         None, description="URLs to the meeting subtitle tracks"
     )
 
@@ -36,7 +36,7 @@ class Meeting(Dyntastic):
         return f"{self.meeting} ({self.date})"
 
     def filename(self) -> str:
-        return f"{self.clip_id}/{clean_filename(self.meeting)} ({self.date})"
+        return f"{self.clip_id}/{clean_filename(self.meeting)}/({self.date})"
 
 
 class GranicusPlayerPage(BaseModel):

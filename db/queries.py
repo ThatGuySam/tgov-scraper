@@ -14,4 +14,4 @@ def get_meetings(days: int = 7) -> Sequence[Meeting]:
         A.date >= target_date,
     )
 
-    return Sequence(meetings)
+    return list(meetings)

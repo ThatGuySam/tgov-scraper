@@ -2,6 +2,7 @@ import os
 
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
+from pydantic import HttpUrl
 
 
 def is_aws_configured():
@@ -41,9 +42,12 @@ def upload_to_s3(file_path, bucket_name, s3_path):
 
 
 def save_content_to_s3(content, bucket_name, s3_key, content_type):
-    return s3_client.put_object(
+    response = s3_client.put_object(
         Bucket=bucket_name,
         Key=s3_key,
         Body=content.encode("utf-8"),
         ContentType=content_type,
     )
+    region = s3_client.meta.region_name
+    url = f"https://{bucket_name}.s3.{region}.amazonaws.com/{s3_key}"
+    return HttpUrl(url)
