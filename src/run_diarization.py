@@ -43,4 +43,7 @@ def run_diarization(video_file: Path):
 
 if __name__ == "__main__":
     video_file = download_video()
-    run_diarization(video_file)
+    if video_file:
+        run_diarization(video_file)
+    else:
+        print("Video file not found")
