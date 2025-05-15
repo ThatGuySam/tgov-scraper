@@ -18,6 +18,7 @@ def download_video():
     output_path = VIDEO_DIRECTORY / f"{file_name}.mp4"
 
     video_url = "https://tulsa-ok.granicus.com/MediaPlayer.php?view_id=4&clip_id=6501"
+    print(f"Downloading video from {video_url}")
     # Get video player page info
     player_page: GranicusPlayerPage = asyncio.run(get_video_player(video_url))
 
@@ -28,10 +29,10 @@ def download_video():
     if video_file:
         print(f"Video saved to: {video_file}")
 
+    return video_file
 
-def run_diarization():
-    video_file = "data/video/regular_council_meeting___2025_02_26.mp4"
 
+def run_diarization(video_file: Path):
     transcription_dir = Path("data/transcripts")
 
     transcription = asyncio.run(
@@ -41,5 +42,5 @@ def run_diarization():
 
 
 if __name__ == "__main__":
-    download_video()
-    run_diarization()
+    video_file = download_video()
+    run_diarization(video_file)
