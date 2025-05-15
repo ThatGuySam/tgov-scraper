@@ -27,7 +27,7 @@ jobs:
       run: |
         set -ex
         sudo apt-get update
-        sudo apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev
+        sudo apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev ffmpeg
         sudo apt-get clean
         sudo rm -rf /var/lib/apt/lists/*
         python3 -m venv "${POETRY_VENV}"
