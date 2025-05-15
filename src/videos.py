@@ -174,6 +174,9 @@ async def transcribe_video_with_diarization(
     logger.info(f"Transcribing video with speaker diarization: {video_path}")
     start_time = time.time()
 
+    # Create output directory if it doesn't exist
+    output_path.mkdir(parents=True, exist_ok=True)
+
     # Get the output path for the transcription
     transcription_path = get_output_path(video_path, output_path, ext="diarized.json")
 
