@@ -22,6 +22,8 @@ jobs:
         python-version: "3.11"
     - name: Install dependencies
       run: |
+        export POETRY_VERSION=1.3.2
+        export POETRY_VENV=/opt/poetry-venv
         sudo apt-get update
         sudo apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev
         sudo apt-get clean
