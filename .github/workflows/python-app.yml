@@ -13,6 +13,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      POETRY_VERSION: "1.3.2"
+      POETRY_VENV: "/opt/poetry-venv"
 
     steps:
     - uses: actions/checkout@v4
@@ -22,8 +25,6 @@ jobs:
         python-version: "3.11"
     - name: Install dependencies
       run: |
-        export POETRY_VERSION=1.3.2
-        export POETRY_VENV=/opt/poetry-venv
         sudo apt-get update
         sudo apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev
         sudo apt-get clean
@@ -37,7 +38,7 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-        export PATH="${PATH}:${POETRY_VENV}/bin"
+        "PATH=${PATH}:${POETRY_VENV}/bin" >> $env:GITHUB_ENV
         poetry config virtualenvs.create false
         poetry install
     - name: Run Diarization
