@@ -6,10 +6,7 @@ import os
 import logging
 import time
 from typing import Optional
-from pathlib import Path
 import torch
-from pyannote.audio import Pipeline
-from faster_whisper import WhisperModel
 import whisperx
 import dotenv
 
@@ -22,42 +19,6 @@ logger = logging.getLogger(__name__)
 
 dotenv.load_dotenv()
 hf_token = os.getenv("HUGGINGFACE_TOKEN")
-
-
-async def get_whisper(
-    model_size: str,
-    device: str = "cpu",
-    force_download: bool = False,
-    download_root: str = "../models/whisper",
-):
-    """
-    Load a Whisper model from Hugging Face.
-
-    Args:
-        model_size: Size of the model (tiny, base, small, medium, large-v1, large-v2, large-v3)
-        device: Device to use for inference (cpu, cuda, or mps)
-        force_download: Whether to force download the model even if it exists
-        download_root: Directory to save the downloaded model
-
-    Returns:
-        Loaded WhisperModel
-    """
-    # Handle MPS device (Apple Silicon)
-    compute_type = "float32"
-    whisper_device = device
-    # Ensure the model directory exists
-    os.makedirs(download_root, exist_ok=True)
-
-    # Load the Whisper model
-
-    model = WhisperModel(
-        model_size,
-        device=whisper_device,
-        compute_type=compute_type,
-        download_root=download_root,
-    )
-    logger.info(f"Successfully loaded Whisper model: {model_size}")
-    return model
 
 
 async def get_whisperx(

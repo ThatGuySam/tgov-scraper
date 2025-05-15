@@ -1,0 +1,43 @@
+name: Build/run tgov
+
+on:
+  push:
+    branches: [ "main", "deploy-lambda" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev
+        apt-get clean
+        rm -rf /var/lib/apt/lists/*
+        python3 -m venv "${POETRY_VENV}"
+        $POETRY_VENV/bin/pip install -U pip setuptools
+        $POETRY_VENV/bin/pip install "poetry==${POETRY_VERSION}"
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        export PATH="${PATH}:${POETRY_VENV}/bin"
+        poetry config virtualenvs.create false
+        poetry install
+    - name: Run Diarization
+      run: |
+        python src/run_diarization.py
