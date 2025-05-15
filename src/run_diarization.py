@@ -17,7 +17,9 @@ def download_video():
     # Define output path for the video
     output_path = VIDEO_DIRECTORY / f"{file_name}.mp4"
 
-    video_url = "https://tulsa-ok.granicus.com/MediaPlayer.php?view_id=4&clip_id=6501"
+    # video_url = "https://tulsa-ok.granicus.com/MediaPlayer.php?view_id=4&clip_id=6501"
+    video_url = "https://tulsa-ok.granicus.com/player/clip/6578?view_id=4&redirect=true"
+    # video_url = "https://tulsa-ok.granicus.com/MediaPlayer.php?view_id=4&clip_id=4274"
     print(f"Downloading video from {video_url}")
     # Get video player page info
     player_page: GranicusPlayerPage = asyncio.run(get_video_player(video_url))
