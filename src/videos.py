@@ -13,8 +13,13 @@ import aiohttp
 import requests
 from pathlib import Path
 import whisperx
+
+from src.aws import upload_to_s3
 from .huggingface import get_whisperx
 import logging
+
+BUCKET_NAME = os.getenv("S3_BUCKET")
+FOLDER_NAME = "videos"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -74,6 +79,8 @@ def download_file(url: str, output_path: Path):
                         )
 
     print(f"Download complete: {url}")
+    # Add to S3
+    upload_to_s3(output_path, BUCKET_NAME, f"{FOLDER_NAME}/{output_path.name}")
     return output_path
 
 

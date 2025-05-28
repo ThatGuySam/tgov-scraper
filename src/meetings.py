@@ -7,7 +7,7 @@ Television websites.
 """
 
 import re
-from typing import Dict, List, Sequence
+from typing import List
 from urllib.parse import urljoin
 
 import aiohttp
@@ -127,7 +127,7 @@ async def parse_meetings(html: str) -> List[Meeting]:
     return meetings
 
 
-async def get_tgov_meetings() -> Sequence[Meeting]:
+async def get_tgov_meetings() -> List[Meeting]:
     """
     Fetch and parse meeting data from the Government Access Television website.
 
@@ -165,7 +165,7 @@ def duration_to_minutes(duration):
         return None
 
 
-def get_registry_meetings() -> Sequence[Meeting]:
+def get_registry_meetings() -> List[Meeting]:
     if is_aws_configured():
         print(f"Getting registry from DynamoDB.")
         return list(Meeting.scan())
@@ -174,7 +174,7 @@ def get_registry_meetings() -> Sequence[Meeting]:
         return read_meetings()
 
 
-def write_registry_meetings(meetings: Sequence[Meeting]) -> Sequence[Meeting]:
+def write_registry_meetings(meetings: List[Meeting]) -> List[Meeting]:
     if is_aws_configured():
         print(f"Writing registry to DynamoDB.")
         with Meeting.batch_writer():

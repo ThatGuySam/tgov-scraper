@@ -23,4 +23,4 @@ RUN poetry install
 ENV PYTHONPATH=/app
 ENV PATH="${POETRY_VENV}/bin:${PATH}"
 
-CMD ["python", "src/run_diarization.py"]
+CMD ["python", "-m", "flows.translate_meetings"]

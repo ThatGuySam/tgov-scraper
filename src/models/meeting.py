@@ -7,7 +7,7 @@ from typing import Optional
 from dyntastic import Dyntastic
 from pydantic import BaseModel, Field, HttpUrl
 from datetime import datetime
-from typing import Sequence, List
+from typing import List
 
 
 def clean_filename(meeting_name: str) -> str:
