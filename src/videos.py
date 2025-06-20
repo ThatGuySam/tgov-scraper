@@ -10,12 +10,16 @@ from typing import Optional
 import time
 import json
 import aiohttp
-import m3u8
 import requests
 from pathlib import Path
 import whisperx
-from .huggingface import get_whisper, get_whisperx
+
+from src.aws import upload_to_s3
+from .huggingface import get_whisperx
 import logging
+
+BUCKET_NAME = os.getenv("S3_BUCKET")
+FOLDER_NAME = "videos"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,7 +29,6 @@ logger = logging.getLogger(__name__)
 
 
 def get_output_path(file: Path, dir: Path, ext: str = "json") -> Path:
-
     file_name = os.path.basename(file)
     base_name = os.path.splitext(file_name)[0]
     output_path = os.path.join(dir, f"{base_name}.{ext}")
@@ -72,10 +75,12 @@ def download_file(url: str, output_path: Path):
                     percent = int(downloaded * 100 / total_size)
                     if percent % 5 == 0 and percent > 0:
                         print(
-                            f"Downloaded {percent}% ({downloaded/1024/1024:.1f} MB / {total_size/1024/1024:.1f} MB)"
+                            f"Downloaded {percent}% ({downloaded / 1024 / 1024:.1f} MB / {total_size / 1024 / 1024:.1f} MB)"
                         )
 
     print(f"Download complete: {url}")
+    # Add to S3
+    upload_to_s3(output_path, BUCKET_NAME, f"{FOLDER_NAME}/{output_path.name}")
     return output_path
 
 
@@ -151,69 +156,6 @@ async def save_audio(
         raise e
 
 
-async def transcribe_video(video_path: Path, output_path: Path):
-    model = await get_whisper(model_size="tiny")
-    logger.info(f"Transcribing video: {video_path}")
-    start_time = time.time()
-
-    # Get the output path for the transcription
-    transcription_path = get_output_path(video_path, output_path, ext="json")
-
-    # Run the transcription
-    segments, info = model.transcribe(
-        video_path,
-        language=None,
-        task="transcribe",
-        beam_size=5,
-        vad_filter=False,
-        vad_parameters=None,
-    )
-
-    # Process the segments
-    segments_list = []
-
-    logger.info("Processing transcription segments...")
-    for segment in segments:
-        # Add to segments list for JSON output
-        segment_dict = {
-            "id": segment.id,
-            "start": segment.start,
-            "end": segment.end,
-            "text": segment.text,
-            "speaker": "Unknown",  # Default speaker when diarization is not available
-            "words": (
-                [
-                    {
-                        "word": word.word,
-                        "start": word.start,
-                        "end": word.end,
-                        "probability": word.probability,
-                    }
-                    for word in segment.words
-                ]
-                if segment.words
-                else []
-            ),
-        }
-        segments_list.append(segment_dict)
-
-    # Save the detailed JSON with timing information
-    transcription_data = {
-        "language": info.language,
-        "language_probability": info.language_probability,
-        "duration": info.duration,
-        "segments": segments_list,
-    }
-
-    with open(transcription_path, "w", encoding="utf-8") as f:
-        json.dump(transcription_data, f, indent=2, ensure_ascii=False)
-
-    elapsed_time = time.time() - start_time
-    logger.info(f"Transcription completed in {elapsed_time:.2f} seconds")
-    logger.info(f"Detailed JSON saved to: {transcription_path}")
-    return transcription_data
-
-
 async def transcribe_video_with_diarization(
     video_path: Path,
     output_path: Path,
@@ -238,6 +180,9 @@ async def transcribe_video_with_diarization(
     """
     logger.info(f"Transcribing video with speaker diarization: {video_path}")
     start_time = time.time()
+
+    # Create output directory if it doesn't exist
+    output_path.mkdir(parents=True, exist_ok=True)
 
     # Get the output path for the transcription
     transcription_path = get_output_path(video_path, output_path, ext="diarized.json")

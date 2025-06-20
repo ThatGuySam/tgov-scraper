@@ -34,4 +34,7 @@ def from_jsonl(jsonl_str: str, model_class: Type[T]) -> Sequence[T]:
     Returns:
         A list of instances of the specified Pydantic model class.
     """
-    return [model_class.model_validate(json.loads(line)) for line in jsonl_str.strip().splitlines()]
+    return [
+        model_class.model_validate(json.loads(line))
+        for line in jsonl_str.strip().splitlines()
+    ]
