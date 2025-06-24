@@ -31,3 +31,7 @@ https://www.perplexity.ai/search/-zGQN1oz3SsG_YKjX6nJi7Q
 
 AWS Control Tower
 https://aws.amazon.com/controltower/
+
+Perplexity AWS Access Research Thread
+https://www.perplexity.ai/search/what-is-the-service-to-create-YHyTCpQSSKeVArDM9S0zEw
+
